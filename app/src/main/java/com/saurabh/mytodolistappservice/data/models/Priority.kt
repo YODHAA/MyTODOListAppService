@@ -1,4 +1,4 @@
-package com.saurabh.mytodolistappservice.data
+package com.saurabh.mytodolistappservice.data.models
 
 enum class Priority {
     HIGH,
