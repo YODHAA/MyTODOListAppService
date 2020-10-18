@@ -11,13 +11,16 @@ import com.saurabh.mytodolistappservice.R
 import com.saurabh.mytodolistappservice.data.models.Priority
 import com.saurabh.mytodolistappservice.data.models.ToDoData
 import com.saurabh.mytodolistappservice.data.viewmodel.ToDoViewModel
+import com.saurabh.mytodolistappservice.fragments.SharedViewModel
 import kotlinx.android.synthetic.main.fragment_add.*
+import kotlinx.android.synthetic.main.fragment_add.view.*
 
 
 class AddFragment : Fragment() {
 
 
     private val mToDoViewModel : ToDoViewModel by viewModels()
+    private val mSharedViewModel : SharedViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,6 +32,9 @@ class AddFragment : Fragment() {
 
         // Inflate the layout for this fragment
         val view =  inflater.inflate(R.layout.fragment_add, container, false)
+
+        // set prioirty listner
+        view.priorities_spinner.onItemSelectedListener = mSharedViewModel.listener
 
         return view
     }
@@ -51,14 +57,14 @@ class AddFragment : Fragment() {
         val mPriority = priorities_spinner.selectedItem.toString()
         val mDescription = description_et.text.toString()
 
-        val validation = verifyDataFromUser(mTitle,mPriority,mDescription)
+        val validation = mSharedViewModel.verifyDataFromUser(mTitle,mPriority,mDescription)
 
         if(validation){
             // insert data to database
             val newData = ToDoData(
                 0,
                 mTitle,
-                parsePriority(mPriority),
+                mSharedViewModel.parsePriority(mPriority),
                 mDescription
             )
 
@@ -73,21 +79,6 @@ class AddFragment : Fragment() {
 
         }
 
-    }
-
-    private fun parsePriority(priority: String): Priority {
-        return when(priority) {
-            "High Priority" -> {Priority.HIGH}
-            "Medium Priority" -> {Priority.MEDIUM}
-            "Low Priority" -> {Priority.LOW}
-            else -> Priority.LOW
-        }
-    }
-
-    private fun verifyDataFromUser(title: String , mPriority: String ,description : String ): Boolean {
-         return if(TextUtils.isEmpty(title) || TextUtils.isEmpty(description)){
-             false
-         }else !(title.isEmpty() || description.isEmpty())
     }
 
 }
