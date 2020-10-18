@@ -1,6 +1,7 @@
 package com.saurabh.mytodolistappservice.data
 
 import androidx.room.TypeConverter
+import com.saurabh.mytodolistappservice.data.models.Priority
 
 class Converter  {
 
