@@ -73,7 +73,7 @@ class UpdateFragment : Fragment() {
         bulder.setTitle("Delete '${args.currentItem.title}' ? ")
         bulder.setMessage(" Are you sure you want to remove '${args.currentItem.title}' ?")
         bulder.create().show()
-       
+
     }
 
     private fun updateItem() {
