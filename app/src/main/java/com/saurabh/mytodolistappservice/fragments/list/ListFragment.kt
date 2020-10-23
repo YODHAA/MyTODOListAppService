@@ -26,6 +26,9 @@ class ListFragment : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_list, container, false)
 
+        // Set Menu
+        setHasOptionsMenu(true)
+
         var recyclerView = view.recyclerView
         recyclerView.adapter =adapter
 
@@ -39,12 +42,11 @@ class ListFragment : Fragment() {
             findNavController().navigate(R.id.action_listFragment_to_addFragment)
         }
 
-        view.listLayout.setOnClickListener {
-            findNavController().navigate(R.id.action_listFragment_to_updateFragment)
-        }
+//        view.listLayout.setOnClickListener {
+//            findNavController().navigate(R.id.action_listFragment_to_updateFragment)
+//        }
 
-        // Set Menu
-        setHasOptionsMenu(true)
+
 
         return view
     }
