@@ -1,27 +1,23 @@
-package com.saurabh.mytodolistappservice.fragments.list
+package com.saurabh.mytodolistappservice.fragments.list.adapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
-import androidx.navigation.findNavController
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.saurabh.mytodolistappservice.R
-import com.saurabh.mytodolistappservice.data.models.Priority
 import com.saurabh.mytodolistappservice.data.models.ToDoData
 import com.saurabh.mytodolistappservice.databinding.RowLayoutBinding
-import com.saurabh.mytodolistappservice.databinding.RowLayoutBindingImpl
-import kotlinx.android.synthetic.main.row_layout.view.*
 
 class ListAdapter : RecyclerView.Adapter<ListAdapter.MyViewHolder>() {
 
-   private var dataList = emptyList<ToDoData>()
+   var dataList = emptyList<ToDoData>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
 //       val view = LayoutInflater.from(parent.context).inflate(R.layout.row_layout,parent,false)
 //        return MyViewHolder(view)
 
-         return  MyViewHolder.from(parent)
+         return MyViewHolder.from(
+             parent
+         )
     }
 
     override fun getItemCount(): Int {
@@ -60,8 +56,13 @@ class ListAdapter : RecyclerView.Adapter<ListAdapter.MyViewHolder>() {
     }
 
      fun setdata(toDoData: List<ToDoData>) {
+
+         // Recycler Performance Increases
+         val toDoDiffUtil : ToDoDiffUtil = ToDoDiffUtil(dataList,toDoData)
+         val toDoDiffResult = DiffUtil.calculateDiff(toDoDiffUtil)
          this.dataList=toDoData
-         notifyDataSetChanged()
+         toDoDiffResult.dispatchUpdatesTo(this)
+         //notifyDataSetChanged()
      }
 
     class MyViewHolder(private val binding : RowLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -76,7 +77,9 @@ class ListAdapter : RecyclerView.Adapter<ListAdapter.MyViewHolder>() {
             fun from(parent:ViewGroup) : MyViewHolder {
                 val layoutInflator = LayoutInflater.from(parent.context)
                 val binding = RowLayoutBinding.inflate(layoutInflator,parent,false)
-                return MyViewHolder(binding)
+                return MyViewHolder(
+                    binding
+                )
             }
         }
 

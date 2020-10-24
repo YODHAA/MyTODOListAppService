@@ -7,24 +7,26 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import com.saurabh.mytodolistappservice.R
+import com.saurabh.mytodolistappservice.data.models.ToDoData
 import com.saurabh.mytodolistappservice.data.viewmodel.ToDoViewModel
 import com.saurabh.mytodolistappservice.databinding.FragmentListBinding
 import com.saurabh.mytodolistappservice.fragments.SharedViewModel
-import kotlinx.android.synthetic.main.fragment_list.view.*
+import com.saurabh.mytodolistappservice.fragments.list.adapter.ListAdapter
 
 
 class ListFragment : Fragment() {
 
-    private val adapter : ListAdapter by lazy { ListAdapter() }
+    private val adapter: ListAdapter by lazy { ListAdapter() }
 
-    private val mSharedViewModel : SharedViewModel by viewModels()
-    private val mToDoViewModel : ToDoViewModel  by viewModels()
+    private val mSharedViewModel: SharedViewModel by viewModels()
+    private val mToDoViewModel: ToDoViewModel by viewModels()
 
-    private var _binding : FragmentListBinding? = null
+    private var _binding: FragmentListBinding? = null
     private val binding
         get() = _binding
 
@@ -36,7 +38,7 @@ class ListFragment : Fragment() {
 //        val view = inflater.inflate(R.layout.fragment_list, container, false)
 
         // Data Binding
-        _binding = FragmentListBinding.inflate(inflater,container,false)
+        _binding = FragmentListBinding.inflate(inflater, container, false)
         binding?.lifecycleOwner = this
         binding?.mSharedViewModel = mSharedViewModel
 
@@ -48,9 +50,9 @@ class ListFragment : Fragment() {
 
         // Observe Livedata
 
-        mToDoViewModel.getAllData.observe(viewLifecycleOwner, Observer {data ->
+        mToDoViewModel.getAllData.observe(viewLifecycleOwner, Observer { data ->
             mSharedViewModel.checkIfDatabaseEmpty(data)
-             adapter.setdata(data)
+            adapter.setdata(data)
         })
 
 //        mSharedViewModel.emptyDatabase.observe(viewLifecycleOwner, Observer {
@@ -66,14 +68,51 @@ class ListFragment : Fragment() {
 //        }
 
 
-
         return binding?.root
     }
 
     private fun setUpRecyclerView() {
         var recyclerView = binding?.recyclerView
-        recyclerView?.adapter =adapter
+        recyclerView?.adapter = adapter
         recyclerView?.layoutManager = LinearLayoutManager(requireActivity())
+
+        // Swipe to Delete
+        recyclerView?.let { swipeToDelete(it) }
+    }
+
+    // Swipe functionality callback abstract class Impl
+
+    private fun swipeToDelete(recyclerView: RecyclerView) {
+        val swipeToDeleteCallback = object : SwipeToDelete() {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val itemToDelete = adapter.dataList[viewHolder.adapterPosition]
+                // Delete Item
+                mToDoViewModel.deleteData(itemToDelete)
+                adapter.notifyItemRemoved(viewHolder.adapterPosition)
+
+                // Restore Deleted Item
+                restoreDeletedData(viewHolder.itemView,deletedItem = itemToDelete,position = viewHolder.adapterPosition)
+                // as snackbar is used
+//                Toast.makeText(
+//                    requireContext(), " Successfully Removed : '${itemToDelete.title}' !!!",
+//                    Toast.LENGTH_LONG
+//                ).show()
+            }
+        }
+        val itemTouchHelper = ItemTouchHelper(swipeToDeleteCallback)
+        itemTouchHelper.attachToRecyclerView(recyclerView)
+    }
+
+    // Restore Functionality
+
+    private fun restoreDeletedData(view: View, deletedItem: ToDoData, position: Int) {
+        val snackBar = Snackbar.make( view , " Deleted '${deletedItem.title}'  ",Snackbar.LENGTH_LONG)
+        snackBar.setAction("Undo") {
+            mToDoViewModel.insertData(deletedItem)
+            adapter.notifyItemChanged(position)
+        }
+
+        snackBar.show()
     }
 
 //    private fun showEmptyDatabaseView(emptyDatabase:Boolean) {
@@ -89,14 +128,14 @@ class ListFragment : Fragment() {
 //    }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.list_fragment_menu,menu)
+        inflater.inflate(R.menu.list_fragment_menu, menu)
         //super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-        when(item.itemId){
-            R.id.menu_delete_all ->  confirmRemoveAll()
+        when (item.itemId) {
+            R.id.menu_delete_all -> confirmRemoveAll()
         }
         return super.onOptionsItemSelected(item)
     }
@@ -104,12 +143,14 @@ class ListFragment : Fragment() {
     // Show AlertDialogBox to confirm Removal of All Items from Database Table
     private fun confirmRemoveAll() {
         val bulder = AlertDialog.Builder(context)
-        bulder.setPositiveButton("Yes, Delete"){
-                _,_ ->  mToDoViewModel.deleteAll()
-            Toast.makeText(requireContext()," Successfully Removed Everything !!!",
-                Toast.LENGTH_LONG).show()
+        bulder.setPositiveButton("Yes, Delete") { _, _ ->
+            mToDoViewModel.deleteAll()
+            Toast.makeText(
+                requireContext(), " Successfully Removed Everything !!!",
+                Toast.LENGTH_LONG
+            ).show()
         }
-        bulder.setNegativeButton("No") { _,_ -> }
+        bulder.setNegativeButton("No") { _, _ -> }
         bulder.setTitle("Delete Everything ? ")
         bulder.setMessage(" Are you sure you want to remove Everything ?")
         bulder.create().show()
