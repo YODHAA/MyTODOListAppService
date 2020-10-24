@@ -15,12 +15,14 @@ import com.saurabh.mytodolistappservice.data.models.ToDoData
 class SharedViewModel(application: Application) : AndroidViewModel(application) {
 
 
+    /** ===================================== List Fragment =======================================**/
     var emptyDatabase: MutableLiveData<Boolean> = MutableLiveData(true)
 
     fun checkIfDatabaseEmpty(toDoData: List<ToDoData>){
         emptyDatabase.value = toDoData.isEmpty()
     }
 
+    /** ======================================= Add/Update Fragment ===================================**/
     val listener : AdapterView.OnItemSelectedListener = object : AdapterView.OnItemSelectedListener {
         override fun onNothingSelected(parent: AdapterView<*>?) {
 

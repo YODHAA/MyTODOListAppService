@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.saurabh.mytodolistappservice.R
 import com.saurabh.mytodolistappservice.data.viewmodel.ToDoViewModel
+import com.saurabh.mytodolistappservice.databinding.FragmentListBinding
 import com.saurabh.mytodolistappservice.fragments.SharedViewModel
 import kotlinx.android.synthetic.main.fragment_list.view.*
 
@@ -23,33 +24,42 @@ class ListFragment : Fragment() {
     private val mSharedViewModel : SharedViewModel by viewModels()
     private val mToDoViewModel : ToDoViewModel  by viewModels()
 
+    private var _binding : FragmentListBinding? = null
+    private val binding
+        get() = _binding
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_list, container, false)
+//        val view = inflater.inflate(R.layout.fragment_list, container, false)
+
+        // Data Binding
+        _binding = FragmentListBinding.inflate(inflater,container,false)
+        binding?.lifecycleOwner = this
+        binding?.mSharedViewModel = mSharedViewModel
 
         // Set Menu
         setHasOptionsMenu(true)
 
-        var recyclerView = view.recyclerView
-        recyclerView.adapter =adapter
+        // Setup  Recycler View
+        setUpRecyclerView()
 
-        recyclerView.layoutManager = LinearLayoutManager(requireActivity())
+        // Observe Livedata
 
         mToDoViewModel.getAllData.observe(viewLifecycleOwner, Observer {data ->
             mSharedViewModel.checkIfDatabaseEmpty(data)
              adapter.setdata(data)
         })
 
-        mSharedViewModel.emptyDatabase.observe(viewLifecycleOwner, Observer {
-            showEmptyDatabaseView(it)
-        })
+//        mSharedViewModel.emptyDatabase.observe(viewLifecycleOwner, Observer {
+//            showEmptyDatabaseView(it)
+//        })
 
-        view.floatingActionButton.setOnClickListener {
-            findNavController().navigate(R.id.action_listFragment_to_addFragment)
-        }
+//        view.floatingActionButton.setOnClickListener {
+//            findNavController().navigate(R.id.action_listFragment_to_addFragment)
+//        }  now implmented DataBinding Adapter for its click
 
 //        view.listLayout.setOnClickListener {
 //            findNavController().navigate(R.id.action_listFragment_to_updateFragment)
@@ -57,20 +67,26 @@ class ListFragment : Fragment() {
 
 
 
-        return view
+        return binding?.root
     }
 
-    private fun showEmptyDatabaseView(emptyDatabase:Boolean) {
-
-        if(emptyDatabase) {
-            view?.no_data_imageView?.visibility = View.VISIBLE
-            view?.no_data_textView?.visibility = View.VISIBLE
-        }
-        else{
-            view?.no_data_imageView?.visibility = View.INVISIBLE
-            view?.no_data_textView?.visibility = View.INVISIBLE
-        }
+    private fun setUpRecyclerView() {
+        var recyclerView = binding?.recyclerView
+        recyclerView?.adapter =adapter
+        recyclerView?.layoutManager = LinearLayoutManager(requireActivity())
     }
+
+//    private fun showEmptyDatabaseView(emptyDatabase:Boolean) {
+//
+//        if(emptyDatabase) {
+//            view?.no_data_imageView?.visibility = View.VISIBLE
+//            view?.no_data_textView?.visibility = View.VISIBLE
+//        }
+//        else{
+//            view?.no_data_imageView?.visibility = View.INVISIBLE
+//            view?.no_data_textView?.visibility = View.INVISIBLE
+//        }
+//    }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.list_fragment_menu,menu)
@@ -97,6 +113,13 @@ class ListFragment : Fragment() {
         bulder.setTitle("Delete Everything ? ")
         bulder.setMessage(" Are you sure you want to remove Everything ?")
         bulder.create().show()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // to avoid memeory leak
+        _binding = null
+
     }
 
 }
