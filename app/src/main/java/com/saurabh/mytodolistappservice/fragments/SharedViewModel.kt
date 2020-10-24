@@ -16,7 +16,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
 
 
     /** ===================================== List Fragment =======================================**/
-    var emptyDatabase: MutableLiveData<Boolean> = MutableLiveData(true)
+    var emptyDatabase: MutableLiveData<Boolean> = MutableLiveData(false)
 
     fun checkIfDatabaseEmpty(toDoData: List<ToDoData>){
         emptyDatabase.value = toDoData.isEmpty()
