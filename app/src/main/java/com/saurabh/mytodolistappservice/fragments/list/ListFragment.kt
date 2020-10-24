@@ -37,6 +37,8 @@ class ListFragment : Fragment() {
 
         // Data Binding
         _binding = FragmentListBinding.inflate(inflater,container,false)
+        binding?.lifecycleOwner = this
+        binding?.mSharedViewModel = mSharedViewModel
 
         // Set Menu
         setHasOptionsMenu(true)
@@ -51,9 +53,9 @@ class ListFragment : Fragment() {
              adapter.setdata(data)
         })
 
-        mSharedViewModel.emptyDatabase.observe(viewLifecycleOwner, Observer {
-            showEmptyDatabaseView(it)
-        })
+//        mSharedViewModel.emptyDatabase.observe(viewLifecycleOwner, Observer {
+//            showEmptyDatabaseView(it)
+//        })
 
 //        view.floatingActionButton.setOnClickListener {
 //            findNavController().navigate(R.id.action_listFragment_to_addFragment)
@@ -74,17 +76,17 @@ class ListFragment : Fragment() {
         recyclerView?.layoutManager = LinearLayoutManager(requireActivity())
     }
 
-    private fun showEmptyDatabaseView(emptyDatabase:Boolean) {
-
-        if(emptyDatabase) {
-            view?.no_data_imageView?.visibility = View.VISIBLE
-            view?.no_data_textView?.visibility = View.VISIBLE
-        }
-        else{
-            view?.no_data_imageView?.visibility = View.INVISIBLE
-            view?.no_data_textView?.visibility = View.INVISIBLE
-        }
-    }
+//    private fun showEmptyDatabaseView(emptyDatabase:Boolean) {
+//
+//        if(emptyDatabase) {
+//            view?.no_data_imageView?.visibility = View.VISIBLE
+//            view?.no_data_textView?.visibility = View.VISIBLE
+//        }
+//        else{
+//            view?.no_data_imageView?.visibility = View.INVISIBLE
+//            view?.no_data_textView?.visibility = View.INVISIBLE
+//        }
+//    }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.list_fragment_menu,menu)
