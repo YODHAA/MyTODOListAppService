@@ -12,6 +12,7 @@ import com.saurabh.mytodolistappservice.R
 import com.saurabh.mytodolistappservice.data.models.Priority
 import com.saurabh.mytodolistappservice.data.models.ToDoData
 import com.saurabh.mytodolistappservice.data.viewmodel.ToDoViewModel
+import com.saurabh.mytodolistappservice.databinding.FragmentUpdateBinding
 import com.saurabh.mytodolistappservice.fragments.SharedViewModel
 import kotlinx.android.synthetic.main.fragment_update.*
 import kotlinx.android.synthetic.main.fragment_update.view.*
@@ -25,25 +26,36 @@ class UpdateFragment : Fragment() {
 
     private val mToDoViewModel : ToDoViewModel by viewModels()
 
+    private var _binding: FragmentUpdateBinding? =null
+    private val binding
+    get() = _binding
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
 
         // Inflate the layout for this fragment
-        val view=  inflater.inflate(R.layout.fragment_update, container, false)
+//        val view=  inflater.inflate(R.layout.fragment_update, container, false)
+
+         _binding = FragmentUpdateBinding.inflate(inflater,container,false)
+        binding?.args = args
 
         // Set Menu Option
         setHasOptionsMenu(true)
 
-        view.current_title_et.setText(args.currentItem.title)
-        view.current_description_et.setText(args.currentItem.description)
-        view.current_priorities_spinner.setSelection(mSharedViewModel.parsePriority(args.currentItem.priority))
+//        view.current_title_et.setText(args.currentItem.title)
+//        view.current_description_et.setText(args.currentItem.description)
+//        view.current_priorities_spinner.setSelection(mSharedViewModel.parsePriority(args.currentItem.priority))
+//
+//        view.current_priorities_spinner.onItemSelectedListener = mSharedViewModel.listener
 
-        view.current_priorities_spinner.onItemSelectedListener = mSharedViewModel.listener
 
 
-        return view
+       // Spinner Item Selected Listner
+        binding?.currentPrioritiesSpinner?.onItemSelectedListener = mSharedViewModel.listener
+
+        return binding?.root
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -101,6 +113,11 @@ class UpdateFragment : Fragment() {
         }
 
 
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 }
