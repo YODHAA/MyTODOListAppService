@@ -15,6 +15,7 @@ import com.saurabh.mytodolistappservice.data.models.ToDoData
 import com.saurabh.mytodolistappservice.data.viewmodel.ToDoViewModel
 import com.saurabh.mytodolistappservice.databinding.FragmentListBinding
 import com.saurabh.mytodolistappservice.fragments.SharedViewModel
+import com.saurabh.mytodolistappservice.fragments.Utils.hideKeyboard
 import com.saurabh.mytodolistappservice.fragments.list.adapter.ListAdapter
 import jp.wasabeef.recyclerview.animators.LandingAnimator
 
@@ -47,6 +48,9 @@ class ListFragment : Fragment(), SearchView.OnQueryTextListener {
 
         // Setup  Recycler View
         setUpRecyclerView()
+
+        // Hide SoftKeyboard Input
+        hideKeyboard(requireActivity())
 
         // Observe Livedata
 
@@ -115,7 +119,7 @@ class ListFragment : Fragment(), SearchView.OnQueryTextListener {
         val snackBar = Snackbar.make( view , " Deleted '${deletedItem.title}'  ",Snackbar.LENGTH_LONG)
         snackBar.setAction("Undo") {
             mToDoViewModel.insertData(deletedItem)
-            adapter.notifyItemChanged(position)
+          //  adapter.notifyItemChanged(position)
         }
 
         snackBar.show()
